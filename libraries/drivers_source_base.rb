@@ -18,16 +18,23 @@ module Drivers
       end
 
       def settings
-        return default_settings if configuration_data_source == :node_engine
-
-        default_settings.merge(app['app_source'].symbolize_keys)
+        combined_settings = default_settings
+        combined_settings.merge!(app_settings) if configuration_data_source == :app_engine
+        combined_settings.merge(custom_settings)
       end
 
       def default_settings
-        base = node['defaults'][driver_type].merge(
-          node['deploy'][app['shortname']][driver_type] || {}
-        ).symbolize_keys
+        base = node['defaults'][driver_type].symbolize_keys
         defaults.merge(base)
+      end
+
+      def app_settings
+        app_source = app['app_source']
+        { scm_provider: adapter.constantize, repository: app_source['url'], revision: app_source['revision'] }
+      end
+
+      def custom_settings
+        (node['deploy'][app['shortname']][driver_type] || {}).symbolize_keys
       end
 
       protected
