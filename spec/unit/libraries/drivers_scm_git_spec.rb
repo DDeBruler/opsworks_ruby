@@ -115,5 +115,17 @@ describe Drivers::Scm::Git do
     it 'taken from adapter' do
       @item = described_class.new(dummy_context(node), aws_opsworks_app(app_source: nil))
     end
+
+    it 'context supercedes app' do
+      non_master_branch = {
+        password: '3aa161d358a167204502',
+        revision: 'feature_branch',
+        ssh_key: '--- SSH KEY ---',
+        type: 'git',
+        url: 'git@git.example.com:repo/project.git',
+        user: 'dummy'
+      }
+      @item = described_class.new(dummy_context(node), aws_opsworks_app(app_source: non_master_branch))
+    end
   end
 end
